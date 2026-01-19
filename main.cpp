@@ -32,7 +32,7 @@ int main(int argc, char *argv[])
     }
     json data = json::parse(f);
 
-    auto numeroDeObjetosEuAcho = data.size();
+    Grafo g;
 
     //itera sobre cada objeto do json
     int i = 0;
