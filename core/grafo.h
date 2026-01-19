@@ -6,7 +6,7 @@ using namespace std;
 
 // Estrutura da aresta do grafo, armazena destino e peso
 struct Aresta {
-    int dest;
+    long dest;
     double peso;
 };
 
@@ -16,7 +16,7 @@ public:
     Grafo(int vertices);
 
     // Função para adicinoar aresta ponderada entre dois vertices
-    void addAresta(int vertice, int dest, double peso);
+    void addAresta(long vertice, long dest, double peso);
 
     // Vetor que vai armazenar todos vizinhos de um determinado vértice
     const vector<Aresta>& vizinhos(int nVertices) const;
