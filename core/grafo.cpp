@@ -1,18 +1,71 @@
 #include "grafo.h"
+#include <limits>
+#include <algorithm> // ai usa reverse() no final do Dijkstra
 
 using namespace std;
 
-Grafo::Grafo(int vertices) : adjLista(vertices) {}
-
-void Grafo::addAresta(long origem, long destino, double peso) {
-    //Adiciona aresta no vértice passado como origem
-    adjLista[origem].push_back({destino, peso});
+// construtor - inicializa o contador de vértices
+Grafo::Grafo() {
+    numVertices = 0;
 }
 
-const vector<Aresta>& Grafo::vizinhos(int nVertices) const {
-    return adjLista[nVertices];
+// converte um ID gigante do OSM
+// se o ID é novo, ele cria o cadastro automaticamente.
+int Grafo::obterIndice(long long idOsm) {
+    // 1. Verifica se já conhecemos esse ID
+    if (idMap.find(idOsm) != idMap.end()) {
+        return idMap[idOsm]; // retorna o índice já existente
+    }
+
+    //  se é novo, cria um novo índice sequencial
+    int novoIndice = numVertices;
+    numVertices++;
+
+    // salva no mapa (Id OSM -> Índice Interno)
+    idMap[idOsm] = novoIndice;
+
+    // salva no mapa reverso (Índice Interno -> Id OSM)
+    // Dijkstra retorna os IDs reais no final
+    indiceParaIdMap[novoIndice] = idOsm;
+
+    // expande o vetor de adjacência para caber o novo vértice
+    adjLista.resize(numVertices);
+
+    return novoIndice;
+}
+
+void Grafo::addAresta(long long idOrigem, long long idDestino, double peso) {
+    // primeiro, descobre ou cria os índices internos
+    int iOrigem = obterIndice(idOrigem);
+    int iDestino = obterIndice(idDestino);
+
+    // adiciona a aresta usando os índices internos
+    // o vetor agora está seguro e não vai estourar a memória
+    adjLista[iOrigem].push_back({iDestino, peso});
+}
+
+const vector<Aresta>& Grafo::vizinhos(int indiceInterno) const {
+    return adjLista[indiceInterno];
 }
 
 int Grafo::verticeCount() const {
-    return adjLista.size();
+    return numVertices;
+}
+
+// implementação do Dijkstra
+// falta completar --- ARRUMAR
+list<long long> Grafo::dijkstra(long long idOrigem, long long idDestino) {
+    list<long long> caminho;
+
+    // verificação de segurança
+    if (idMap.find(idOrigem) == idMap.end() || idMap.find(idDestino) == idMap.end()) {
+        return caminho; // retorna vazio se origem ou destino não existem
+    }
+
+    int iOrigem = idMap[idOrigem];
+    int iDestino = idMap[idDestino];
+
+    // TO-DO: FALTA a lógica da priority_queue aqui
+
+    return caminho;
 }
