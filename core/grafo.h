@@ -1,38 +1,53 @@
 #ifndef GRAFO_H
 #define GRAFO_H
+
 #include <vector>
-#include <unordered_map>
+#include <unordered_map> // mapear os IDs
+#include <list>          // retorna o caminho do Dijkstra
 
 using namespace std;
 
-// Estrutura da aresta do grafo, armazena destino e peso
+// estrutura da aresta
 struct Aresta {
-    long dest;
+    int dest;
     double peso;
 };
 
 class Grafo
 {
 public:
+    // sem tamanho fixo
     Grafo();
 
-    // Função para adicinoar aresta ponderada entre dois vertices
-    void addAresta(long vertice, long dest, double peso, bool isOneWay);
+    // adiciona aresta recebendo os IDs originais do OSM (long long)
+    // o método vai converter internamente para índices 0, 1, 2...
+    void addAresta(long long idOrigem, long long idDestino, double peso);
 
-    // Vetor que vai armazenar todos vizinhos de um determinado vértice
-    const vector<Aresta>& vizinhos(int nVertices) const;
+    // retorna vizinhos baseado no índice interno
+    const vector<Aresta>& vizinhos(int indiceInterno) const;
 
-    // Retorna a quantidade de vértices do grafo
+    // retorna quantidade total de vértices
     int verticeCount() const;
+
+    // protótipo do algoritmo de Dijkstra
+    // retorna uma lista com os IDs do caminho encontrado
+    list<long long> dijkstra(long long idOrigem, long long idDestino);
+
 private:
-    // Lista de adjacencia que vai representar o grafo
-    vector<vector<Aresta> > adjLista;
+    // lista de adjacência (o índice do vetor é o índice interno do vértice)
+    vector<vector<Aresta>> adjLista;
 
-    // Hash que vai converter os valores osmid para caber no array do grafo
-    unordered_map<long, long> osmidParaIndice;
+    // tabela de Tradução: ID OSM (long long) -> Índice Interno (int)
+    unordered_map<long long, int> idMap;
 
-    // Cria caso ainad nao exista ou retorna indice referente ao numero osmid do vértice
-    long addVertice(long osmid);
+    // tabela Inversa (opcional, mas útil para o Dijkstra retornar os IDs originais no final)
+    unordered_map<int, long long> indiceParaIdMap;
+
+    int numVertices;
+
+    // método auxiliar privado: Converte ID OSM -> Índice Interno
+    // se o ID não existir, ele cria um novo índice automaticamente
+    int obterIndice(long long idOsm);
 };
 
 #endif // GRAFO_H
