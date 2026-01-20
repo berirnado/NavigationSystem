@@ -2,8 +2,8 @@
 #define GRAFO_H
 
 #include <vector>
-#include <unordered_map> // mapear os IDs
-#include <list>          // retorna o caminho do Dijkstra
+#include <unordered_map>
+#include <list>
 
 using namespace std;
 
@@ -19,8 +19,7 @@ public:
     // sem tamanho fixo
     Grafo();
 
-    // adiciona aresta recebendo os IDs originais do OSM (long long)
-    // o método vai converter internamente para índices 0, 1, 2...
+    // adiciona aresta recebendo os IDs originais do OSM
     void addAresta(long long idOrigem, long long idDestino, double peso);
 
     // retorna vizinhos baseado no índice interno
@@ -29,24 +28,22 @@ public:
     // retorna quantidade total de vértices
     int verticeCount() const;
 
-    // protótipo do algoritmo de Dijkstra
-    // retorna uma lista com os IDs do caminho encontrado
+    // retorna uma lista com os ids do caminho encontrado
     list<long long> dijkstra(long long idOrigem, long long idDestino);
 
 private:
-    // lista de adjacência (o índice do vetor é o índice interno do vértice)
+    // lista de adjacência
     vector<vector<Aresta>> adjLista;
 
-    // tabela de Tradução: ID OSM (long long) -> Índice Interno (int)
+    // tabela que relaciona os ids osmid para os ids do array
     unordered_map<long long, int> idMap;
 
-    // tabela Inversa (opcional, mas útil para o Dijkstra retornar os IDs originais no final)
+    // tabela Inversa
     unordered_map<int, long long> indiceParaIdMap;
 
     int numVertices;
 
-    // método auxiliar privado: Converte ID OSM -> Índice Interno
-    // se o ID não existir, ele cria um novo índice automaticamente
+    // retorna o id interno referente ao osmid e se nao existir cria
     int obterIndice(long long idOsm);
 };
 

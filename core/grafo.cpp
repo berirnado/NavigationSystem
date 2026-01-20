@@ -9,10 +9,10 @@ Grafo::Grafo() {
     numVertices = 0;
 }
 
-// converte um ID gigante do OSM
+// converte um ID gigante do OSM para id interno do array da lista de adj
 // se o ID é novo, ele cria o cadastro automaticamente.
 int Grafo::obterIndice(long long idOsm) {
-    // 1. Verifica se já conhecemos esse ID
+    // verifica se o id para esse osm ja existe
     if (idMap.find(idOsm) != idMap.end()) {
         return idMap[idOsm]; // retorna o índice já existente
     }
@@ -21,10 +21,10 @@ int Grafo::obterIndice(long long idOsm) {
     int novoIndice = numVertices;
     numVertices++;
 
-    // salva no mapa (Id OSM -> Índice Interno)
+    // salva no mapa
     idMap[idOsm] = novoIndice;
 
-    // salva no mapa reverso (Índice Interno -> Id OSM)
+    // salva no mapa reverso
     // Dijkstra retorna os IDs reais no final
     indiceParaIdMap[novoIndice] = idOsm;
 
@@ -40,7 +40,6 @@ void Grafo::addAresta(long long idOrigem, long long idDestino, double peso) {
     int iDestino = obterIndice(idDestino);
 
     // adiciona a aresta usando os índices internos
-    // o vetor agora está seguro e não vai estourar a memória
     adjLista[iOrigem].push_back({iDestino, peso});
 }
 
