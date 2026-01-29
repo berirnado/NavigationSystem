@@ -1,7 +1,8 @@
-#include "mainwindow.h"
 #include <QApplication>
 #include <QDebug>
 #include "grafo.h"
+#include "trie.h"
+#include "mainwindow.h"
 
 #include "nlohmann/json.hpp"
 #include <fstream>
@@ -14,11 +15,10 @@ int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
 
-    // TESTE - antes de ler o arquivo gigante, testando se o grafo aguenta IDs grandes
-
+    // teste 1 ->grafos
     Grafo g;
 
-    cout << "--- teste manual com mock data ---" << endl;
+    cout << " grafo com mock data " << endl;
 
     long long idCasa = 3492019482;
     long long idUfpel = 5529102231;
@@ -28,13 +28,42 @@ int main(int argc, char *argv[])
     g.addAresta(idUfpel, idCentro, 1200.5);
     g.addAresta(idCentro, idCasa, 1500.0);
 
-    cout << "Vertices inseridos: " << g.verticeCount() << endl;
+    cout << "vertices inseridos: " << g.verticeCount() << endl;
 
     if (g.verticeCount() == 3) {
-        cout << "[SUCESSO] O Grafo mapeou os IDs gigantes corretamente!" << endl;
+        cout << "[SUCESSO] o grafo mapeou os idss corretamente!" << endl;
     } else {
-        cout << "[ERRO] Algo deu errado na contagem." << endl;
+        cout << "[ERRO] algo deu errado na contagem do grafo." << endl;
     }
+    cout << endl;
+
+    // teste 2 -> trie e autocomplete
+    cout << "trie / autocomplete" << endl;
+    Trie trie;
+
+    // inserindo dados de teste (nome da rua -> id de algum nó dela)
+    trie.insert("Av. Bento Goncalves", 1001);
+    trie.insert("Av. Brasil", 1002);
+    trie.insert("Av. Duque de Caxias", 1003);
+    trie.insert("Rua General Osorio", 1004);
+    trie.insert("Rua General Neto", 1005);
+
+    // testando busca por "Av. B"
+    string busca = "Av. B";
+    cout << "Digitando: '" << busca << "'..." << endl;
+
+    vector<string> resultados = trie.autocomplete(busca);
+
+    if (resultados.empty()) {
+        cout << "[ERRO] nenhuma sugestao encontrada (esperava Av. Bento e Av. Brasil)" << endl;
+    } else {
+        for(const string& s : resultados) {
+            cout << "sugestao encontrada: " << s << endl;
+        }
+        cout << "[SUCESSO] trie funcionando!" << endl;
+    }
+
+    // ==========================================================
 
     /*
     std::ifstream f("data\\edges.json");
@@ -59,6 +88,7 @@ int main(int argc, char *argv[])
         cout << "Leitura do JSON concluida. Total vertices: " << g.verticeCount() << endl;
     }
     */
+
     MainWindow w;
     w.show();
     return a.exec();
