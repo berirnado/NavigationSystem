@@ -51,7 +51,7 @@
 
     // slot: busca na Trie enquanto digita (Origem)
     void MainWindow::atualizarSugestoesOrigem(const QString &texto) {
-        // 1. Debug: Ver se a função foi chamada
+
         qDebug() << "Digitando Origem: " << texto;
 
         if (!trie) {
@@ -78,7 +78,7 @@
         }
     }
 
-    // Slot: Busca na Trie enquanto digita (Destino) - Mesma lógica
+    // busca na Trie enquanto digita destino
     void MainWindow::atualizarSugestoesDestino(const QString &texto) {
         if (!trie || texto.length() < 3) return;
 
@@ -89,16 +89,14 @@
         modelDestino->setStringList(qSugs);
     }
 
-    // Slot: Botão Calcular Rota
+    // botão de rota
     void MainWindow::on_btnCalcular_clicked() {
         if (!grafo || !trie) return;
 
         QString txtOrigem = ui->inputOrigem->text();
         QString txtDestino = ui->inputDestino->text();
 
-        // 1. Busca IDs na Trie (Assumindo que Trie retorna o ID ou temos um map Nome->ID)
-        // Nota: Seu Trie::autocomplete retorna strings. Você precisará de um método `buscarId(string)`
-        // Vou assumir que você tem um método auxiliar ou mapa para isso.
+        // busca IDs na Trie
         long long idOrigem = trie->buscarId(txtOrigem.toStdString());
         long long idDestino = trie->buscarId(txtDestino.toStdString());
 
@@ -107,7 +105,7 @@
             return;
         }
 
-        // 2. Executa Dijkstra
+        // executa Dijkstra
         list<long long> caminhoIds = grafo->dijkstra(idOrigem, idDestino);
 
         if (caminhoIds.empty()) {
@@ -115,20 +113,17 @@
             return;
         }
 
-        // 3. Converte IDs para Coordenadas (Latitude/Longitude)
-        // O QML espera uma QVariantList de QGeoCoordinate
+        //converte IDs para coordenadas
         QVariantList caminhoCoords;
 
         for (long long id : caminhoIds) {
-            // ATENÇÃO: Você precisa implementar getLat/getLon no seu Grafo
-            // baseado nos dados do node.csv
             double lat = grafo->getLatitude(id);
             double lon = grafo->getLongitude(id);
 
             caminhoCoords.append(QVariant::fromValue(QGeoCoordinate(lat, lon)));
         }
 
-        // 4. Envia para o QML desenhar
+        // envia para o QML desenhar
         QObject* rootObject = mapWidget->rootObject();
         QMetaObject::invokeMethod(rootObject, "desenharRota",
                                   Q_ARG(QVariant, QVariant::fromValue(caminhoCoords)));

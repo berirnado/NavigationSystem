@@ -4,87 +4,129 @@
 #include "trie.h"
 #include "mainwindow.h"
 
-#include "nlohmann/json.hpp"
+#include "nlohmann/json.hpp" // Certifique-se que essa lib está inclusa
 #include <fstream>
 #include <iostream>
-using json = nlohmann::json;
 
+using json = nlohmann::json;
 using namespace std;
 
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
 
-    // inicializa as estruturas principais
+    // Inicializa as estruturas principais
     Grafo g;
     Trie trie;
 
-    //  ids
-    long long idBento = 1001;
-    long long idDuque = 1002;
-    long long idGenNeto = 1003;
-    long long idBrasil = 1004;
+    cout << "--- INICIANDO CARREGAMENTO DA BASE DE DADOS (OSM) ---" << endl;
 
-    // configuração da trie - nome da Rua é o id do nó
-    trie.insert("Av. Bento Goncalves", idBento);
-    trie.insert("Av. Duque de Caxias", idDuque);
-    trie.insert("Rua General Neto", idGenNeto);
-    trie.insert("Av. Brasil", idBrasil);
+    ifstream fNodes("data/nodes.json");
+    if (!fNodes.is_open()) {
+        cerr << "[ERRO CRITICO] Nao foi possivel abrir data/nodes.json" << endl;
+        return -1;
+    }
 
-    cout << "[SUCESSO] Ruas inseridas na Trie." << endl;
+    json jNodes;
+    try {
+        fNodes >> jNodes;
+    } catch (const exception& e) {
+        cerr << "[ERRO JSON] Falha ao ler nodes.json: " << e.what() << endl;
+    }
 
-    // configuração das coordenadas
+    int countNodes = 0;
+    for (const auto& node : jNodes) {
+        // OSMNX
+        if (node.contains("id") && node.contains("y") && node.contains("x")) {
+            long long id = node["id"];
+            double lat = node["y"];
+            double lon = node["x"];
 
-    g.setCoordenada(idBento, -31.7654, -52.3376);
-    g.setCoordenada(idDuque, -31.7600, -52.3400);
-    g.setCoordenada(idGenNeto, -31.7550, -52.3450);
-    g.setCoordenada(idBrasil, -31.7400, -52.3500);
+            g.setCoordenada(id, lat, lon);
+            countNodes++;
+        }
+    }
+    cout << "[OK] Nodos carregados: " << countNodes << endl;
+    fNodes.close();
 
-    // GRAFO
-    g.addAresta(idBento, idDuque, 500.0);
-    g.addAresta(idDuque, idBento, 500.0);
 
-    g.addAresta(idDuque, idGenNeto, 800.0);
-    g.addAresta(idGenNeto, idDuque, 800.0);
 
-    g.addAresta(idBento, idBrasil, 2500.0);
-    g.addAresta(idBrasil, idBento, 2500.0);
+    ifstream fEdges("data/edges.json");
+    if (!fEdges.is_open()) {
+        cerr << "[ERRO CRITICO] Nao foi possivel abrir data/edges.json" << endl;
+        return -1;
+    }
+    json jEdges;
+    fEdges >> jEdges;
 
-    cout << "[SUCESSO] Grafo e Coordenadas configurados. Vertices: " << g.verticeCount() << endl;
+    int countEdges = 0;
+    for (const auto& aresta : jEdges) {
 
-    // ==========================================================
-    //
-    /*
-    std::ifstream f("data/edges.json"); // Cuidado com a barra no Windows (use / ou \\)
-    if (!f.is_open()) {
-        std::cerr << "ERRO: arquivo nao abriu (verifique o caminho)\n";
-    } else {
-        json data = json::parse(f);
+        long long u = aresta.value("u", 0LL);
+        long long v = aresta.value("v", 0LL);
 
-        for (const auto &aresta : data) {
-            long long u = aresta["u"];
-            long long v = aresta["v"];
-            auto &dadosAresta = aresta["data"];
-            double peso = dadosAresta["length"];
-            bool isOneWay = dadosAresta["oneway"];
+        // verifica se tem "length" direto ou se está num sub-objeto
+        double peso = 0.0;
+        bool oneway = false;
 
-            // Importante: Ao ler do JSON, você também precisaria ler
-            // um nodes.csv para dar g.setCoordenada(u, lat, lon)
+        if (aresta.contains("length")) {
+            peso = aresta["length"];
+        } else if (aresta.contains("data") && aresta["data"].contains("length")) {
+            peso = aresta["data"]["length"];
+        }
+
+        if (aresta.contains("oneway")) {
+            oneway = aresta["oneway"];
+        }
+
+        // Adiciona ao grafo
+        if (u != 0 && v != 0) {
             g.addAresta(u, v, peso);
+            if (!oneway) {
+                g.addAresta(v, u, peso); // adiciona volta se não for mão única
+            }
+            countEdges++;
+        }
+    }
+    cout << "[OK] Arestas carregadas: " << countEdges << endl;
+    cout << "     Total de Vertices no Grafo: " << g.verticeCount() << endl;
+    fEdges.close();
 
-            if (!isOneWay) {
-                g.addAresta(v, u, peso);
+    // carregar Nomes para Busca (Trie) -> label_to_nodes.json
+    //mapeia "Nome da Rua" -> lista de IDs
+    ifstream fLabels("data/label_to_nodes.json");
+    if (!fLabels.is_open()) {
+        cerr << "[ERRO] Nao foi possivel abrir data/label_to_nodes.json" << endl;
+    } else {
+        json jLabels;
+        fLabels >> jLabels;
+
+        int countLabels = 0;
+        // itera sobre o mapa: Chave (Nome) -> valor (array de IDs)
+        for (auto& element : jLabels.items()) {
+            string nomeRua = element.key();
+            auto ids = element.value(); // isso deve ser um array de IDs
+
+            // pegamos o primeiro ID da lista para usar como alvo da navegação
+            if (ids.is_array() && !ids.empty()) {
+                long long idAlvo = ids[0];
+
+                // insere na trie: Nome -> ID
+                trie.insert(nomeRua, idAlvo);
+                countLabels++;
             }
         }
-        cout << "Leitura do JSON concluida. Total vertices: " << g.verticeCount() << endl;
+        cout << "[OK] Nomes de ruas indexados na Trie: " << countLabels << endl;
+        fLabels.close();
     }
-    */
-    // ==========================================================
 
-    // inicializa a Janela Principal
+    cout << "--------------------------------------------------" << endl;
+    cout << "SISTEMA PRONTO PARA INICIAR." << endl;
+
+    //inicializa a janela
     MainWindow w;
 
-    // passa os ponteiros do grafo e trie preenchidos pra ui
+    // passa os ponteiros do Grafo e da Trie PREENCHIDOS para a janela
     w.setGrafo(&g);
     w.setTrie(&trie);
 

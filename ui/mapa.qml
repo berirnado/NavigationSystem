@@ -11,11 +11,13 @@ Item {
     function desenharRota(caminhoCoords) {
             console.log("Recebi coordenadas: " + caminhoCoords.length);
 
-            // acessa pelo id
+            // ataualiza linha
             routeLine.path = caminhoCoords;
 
             if (caminhoCoords.length > 0) {
-                map.center = caminhoCoords[0];
+
+                // ajusta o zoom e foco para mostrar a linha inteira
+                map.fitViewportToMapItems([routeLine]);
             }
         }
 
@@ -32,12 +34,20 @@ Item {
         center: QtPositioning.coordinate(-31.7654, -52.3376)
         zoomLevel: 14
 
+        activeMapType: map.supportedMapTypes[0]
+
         // linha
-        MapPolyline {
-            id: routeLine
-            line.width: 5
-            line.color: "blue"
-        }
+        DragHandler {
+                    id: drag
+                    target: null
+                    onTranslationChanged: (delta) => map.pan(-delta.x, -delta.y)
+                }
+
+                MapPolyline {
+                    id: routeLine
+                    line.width: 5
+                    line.color: "blue"
+                }
 
         // desenha a rota
         function desenharRota(caminhoCoords) {
