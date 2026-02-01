@@ -7,12 +7,11 @@
 
 using namespace std;
 
-
 struct TrieNode { // nó da árvore
-    unordered_map<char, TrieNode*> children; // mapa de caracteres para filhos (flexível)
+    unordered_map<char, TrieNode*> children; // mapa de caracteres para filhos
     bool isEndOfWord; // marca se este nó é o fim de uma palavra válida
 
-    //lista de ids dos nós do grafo que correspondem a este nome de rua(util depois para saber onde a rua fica no mapa)
+    // lista de ids dos nós do grafo que correspondem a este nome de rua
     vector<long long> nodeIds;
 
     TrieNode() : isEndOfWord(false) {}
@@ -21,17 +20,22 @@ struct TrieNode { // nó da árvore
 class Trie {
 public:
     Trie();
-    ~Trie(); // destrutor para limpar a memória
+    ~Trie(); // limpa memoria
 
-    void insert(const string& word, long long nodeId); // insere um nome de rua e associa ao id do nó
+    // insere um nome de rua e associa ao id do nó
+    void insert(const string& word, long long nodeId);
 
-    vector<string> autocomplete(const string& prefix); // retorna lista de sugestões dado um prefixo
+    // retorna lista de sugestões dado um prefixo - AUTOCOMPLETE
+    vector<string> autocomplete(const string& prefix);
+
+    // retorna o ID do nó associado a uma palavra exata (-1 se nao achar
+    long long buscarId(const string& word);
 
 private:
     TrieNode* root;
 
-    void collectWords(TrieNode* node, string currentPrefix, vector<string>& results); // auxiliar recursivo para buscar palavras
-    void clear(TrieNode* node); //auxiliar para limpar memória
+    void collectWords(TrieNode* node, string currentPrefix, vector<string>& results); // recursao
+    void clear(TrieNode* node); // confirma pra limpar memoria
 };
 
-#endif
+#endif // TRIE_H

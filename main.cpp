@@ -15,58 +15,47 @@ int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
 
-    // teste 1 ->grafos
+    // inicializa as estruturas principais
     Grafo g;
-
-    cout << " grafo com mock data " << endl;
-
-    long long idCasa = 3492019482;
-    long long idUfpel = 5529102231;
-    long long idCentro = 9988776655;
-
-    g.addAresta(idCasa, idUfpel, 500.0);
-    g.addAresta(idUfpel, idCentro, 1200.5);
-    g.addAresta(idCentro, idCasa, 1500.0);
-
-    cout << "vertices inseridos: " << g.verticeCount() << endl;
-
-    if (g.verticeCount() == 3) {
-        cout << "[SUCESSO] o grafo mapeou os idss corretamente!" << endl;
-    } else {
-        cout << "[ERRO] algo deu errado na contagem do grafo." << endl;
-    }
-    cout << endl;
-
-    // teste 2 -> trie e autocomplete
-    cout << "trie / autocomplete" << endl;
     Trie trie;
 
-    // inserindo dados de teste (nome da rua -> id de algum nó dela)
-    trie.insert("Av. Bento Goncalves", 1001);
-    trie.insert("Av. Brasil", 1002);
-    trie.insert("Av. Duque de Caxias", 1003);
-    trie.insert("Rua General Osorio", 1004);
-    trie.insert("Rua General Neto", 1005);
+    //  ids
+    long long idBento = 1001;
+    long long idDuque = 1002;
+    long long idGenNeto = 1003;
+    long long idBrasil = 1004;
 
-    // testando busca por "Av. B"
-    string busca = "Av. B";
-    cout << "Digitando: '" << busca << "'..." << endl;
+    // configuração da trie - nome da Rua é o id do nó
+    trie.insert("Av. Bento Goncalves", idBento);
+    trie.insert("Av. Duque de Caxias", idDuque);
+    trie.insert("Rua General Neto", idGenNeto);
+    trie.insert("Av. Brasil", idBrasil);
 
-    vector<string> resultados = trie.autocomplete(busca);
+    cout << "[SUCESSO] Ruas inseridas na Trie." << endl;
 
-    if (resultados.empty()) {
-        cout << "[ERRO] nenhuma sugestao encontrada (esperava Av. Bento e Av. Brasil)" << endl;
-    } else {
-        for(const string& s : resultados) {
-            cout << "sugestao encontrada: " << s << endl;
-        }
-        cout << "[SUCESSO] trie funcionando!" << endl;
-    }
+    // configuração das coordenadas
+
+    g.setCoordenada(idBento, -31.7654, -52.3376);
+    g.setCoordenada(idDuque, -31.7600, -52.3400);
+    g.setCoordenada(idGenNeto, -31.7550, -52.3450);
+    g.setCoordenada(idBrasil, -31.7400, -52.3500);
+
+    // GRAFO
+    g.addAresta(idBento, idDuque, 500.0);
+    g.addAresta(idDuque, idBento, 500.0);
+
+    g.addAresta(idDuque, idGenNeto, 800.0);
+    g.addAresta(idGenNeto, idDuque, 800.0);
+
+    g.addAresta(idBento, idBrasil, 2500.0);
+    g.addAresta(idBrasil, idBento, 2500.0);
+
+    cout << "[SUCESSO] Grafo e Coordenadas configurados. Vertices: " << g.verticeCount() << endl;
 
     // ==========================================================
-
+    //
     /*
-    std::ifstream f("data\\edges.json");
+    std::ifstream f("data/edges.json"); // Cuidado com a barra no Windows (use / ou \\)
     if (!f.is_open()) {
         std::cerr << "ERRO: arquivo nao abriu (verifique o caminho)\n";
     } else {
@@ -79,6 +68,8 @@ int main(int argc, char *argv[])
             double peso = dadosAresta["length"];
             bool isOneWay = dadosAresta["oneway"];
 
+            // Importante: Ao ler do JSON, você também precisaria ler
+            // um nodes.csv para dar g.setCoordenada(u, lat, lon)
             g.addAresta(u, v, peso);
 
             if (!isOneWay) {
@@ -88,8 +79,16 @@ int main(int argc, char *argv[])
         cout << "Leitura do JSON concluida. Total vertices: " << g.verticeCount() << endl;
     }
     */
+    // ==========================================================
 
+    // inicializa a Janela Principal
     MainWindow w;
+
+    // passa os ponteiros do grafo e trie preenchidos pra ui
+    w.setGrafo(&g);
+    w.setTrie(&trie);
+
     w.show();
+
     return a.exec();
 }

@@ -7,10 +7,16 @@
 
 using namespace std;
 
-// estrutura da aresta
+// aresta
 struct Aresta {
     int dest;
     double peso;
+};
+
+// guarda latitude e longitudea
+struct Coordenada {
+    double lat;
+    double lon;
 };
 
 class Grafo
@@ -28,18 +34,31 @@ public:
     // retorna quantidade total de vértices
     int verticeCount() const;
 
-    // retorna uma lista com os ids do caminho encontrado
+    // retorna uma lista com os ids do caminho encontrado (Dijkstra)
     list<long long> dijkstra(long long idOrigem, long long idDestino);
 
+
+    // define a coordenada de um nó
+    void setCoordenada(long long id, double lat, double lon);
+
+    // retorna a latitude de um ID original
+    double getLatitude(long long id);
+
+    // retorna a longitude de um ID original
+    double getLongitude(long long id);
+
 private:
-    // lista de adjacência
+    // lista de adjacencia
     vector<vector<Aresta>> adjLista;
 
     // tabela que relaciona os ids osmid para os ids do array
     unordered_map<long long, int> idMap;
 
-    // tabela Inversa
+    // tabela inversa
     unordered_map<int, long long> indiceParaIdMap;
+
+    // tabela de coordenadas
+    unordered_map<long long, Coordenada> coordenadas;
 
     int numVertices;
 
