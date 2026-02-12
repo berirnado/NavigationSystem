@@ -71,6 +71,14 @@ double Grafo::getLongitude(long long id) {
     return 0.0;
 }
 
+std::unordered_map<long long, int>& Grafo::getIdMap() {
+    return idMap;
+}
+
+std::unordered_map<int, long long>& Grafo::getReverseIdMap() {
+    return indiceParaIdMap;
+}
+
 // DIJKSTRA
 
 list<long long> Grafo::dijkstra(long long idOrigem, long long idDestino) {

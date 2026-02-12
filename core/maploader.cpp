@@ -23,7 +23,7 @@ void MapLoader::loadEdges(Grafo& grafo){
         double peso = dadosAresta["length"];
         bool isOneWay = dadosAresta["oneway"];
 
-        grafo.addAresta(u, v, peso, isOneWay);
+        grafo.addAresta(u, v, peso);
     }
 }
 

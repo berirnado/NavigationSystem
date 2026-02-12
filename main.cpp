@@ -2,6 +2,7 @@
 #include <QDebug>
 #include "grafo.h"
 #include "trie.h"
+#include "dijkstra.h"
 #include "mainwindow.h"
 
 #include "nlohmann/json.hpp" // Certifique-se que essa lib está inclusa
@@ -126,9 +127,13 @@ int main(int argc, char *argv[])
     //inicializa a janela
     MainWindow w;
 
+    //Inicializa Dijkstra
+    Dijkstra dijkstra = Dijkstra(g);
+
     // passa os ponteiros do Grafo e da Trie PREENCHIDOS para a janela
     w.setGrafo(&g);
     w.setTrie(&trie);
+    w.setDijkstra(&dijkstra);
 
     w.show();
 

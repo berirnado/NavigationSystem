@@ -1,7 +1,7 @@
 add_library(core
     grafo.h grafo.cpp
-    # maploader.h maploader.cpp  <-- Comentei com #
-    # dijkstra.h dijkstra.cpp    <-- Comentei com #
+    #maploader.h maploader.cpp // ainda vou arrumar isso
+    dijkstra.h dijkstra.cpp
     trie.h
     trie.cpp
 )

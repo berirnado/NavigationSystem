@@ -47,6 +47,12 @@ public:
     // retorna a longitude de um ID original
     double getLongitude(long long id);
 
+    // retorna o idMap (usado em dijkstra)
+    std::unordered_map<long long, int>& getIdMap();
+
+    // retorna o reverseIdMap (usado em dijkstra)
+    std::unordered_map<int, long long>& getReverseIdMap();
+
 private:
     // lista de adjacencia
     vector<vector<Aresta>> adjLista;
