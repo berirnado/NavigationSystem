@@ -34,10 +34,6 @@ public:
     // retorna quantidade total de vértices
     int verticeCount() const;
 
-    // retorna uma lista com os ids do caminho encontrado (Dijkstra)
-    list<long long> dijkstra(long long idOrigem, long long idDestino);
-
-
     // define a coordenada de um nó
     void setCoordenada(long long id, double lat, double lon);
 

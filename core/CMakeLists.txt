@@ -1,6 +1,6 @@
 add_library(core
     grafo.h grafo.cpp
-    #maploader.h maploader.cpp // ainda vou arrumar isso
+    maploader.h maploader.cpp
     dijkstra.h dijkstra.cpp
     trie.h
     trie.cpp
