@@ -8,6 +8,7 @@
 #include <QLineEdit>
 #include "../core/grafo.h"
 #include "../core/trie.h"
+#include "../core/dijkstra.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -24,6 +25,7 @@ public:
     // métodos para injetar as dependências
     void setGrafo(Grafo* g);
     void setTrie(Trie* t);
+    void setDijkstra(Dijkstra* dijkstra);
 
 private slots:
     void on_btnCalcular_clicked(); // Botão da interface
@@ -36,6 +38,7 @@ private:
     // ponteiros pra logica
     Grafo* grafo;
     Trie* trie;
+    Dijkstra* dijkstra;
 
     // automcomplete
     QCompleter *completerOrigem;

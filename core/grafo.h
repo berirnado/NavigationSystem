@@ -34,10 +34,6 @@ public:
     // retorna quantidade total de vértices
     int verticeCount() const;
 
-    // retorna uma lista com os ids do caminho encontrado (Dijkstra)
-    list<long long> dijkstra(long long idOrigem, long long idDestino);
-
-
     // define a coordenada de um nó
     void setCoordenada(long long id, double lat, double lon);
 
@@ -46,6 +42,12 @@ public:
 
     // retorna a longitude de um ID original
     double getLongitude(long long id);
+
+    // retorna o idMap (usado em dijkstra)
+    std::unordered_map<long long, int>& getIdMap();
+
+    // retorna o reverseIdMap (usado em dijkstra)
+    std::unordered_map<int, long long>& getReverseIdMap();
 
 private:
     // lista de adjacencia

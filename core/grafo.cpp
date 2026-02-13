@@ -71,61 +71,10 @@ double Grafo::getLongitude(long long id) {
     return 0.0;
 }
 
-// DIJKSTRA
+std::unordered_map<long long, int>& Grafo::getIdMap() {
+    return idMap;
+}
 
-list<long long> Grafo::dijkstra(long long idOrigem, long long idDestino) {
-    list<long long> caminho;
-
-    // verifica se origem e destino existem no grafo
-    if (idMap.find(idOrigem) == idMap.end() || idMap.find(idDestino) == idMap.end()) {
-        return caminho; // Retorna vazio se não existirem
-    }
-
-    int startIdx = idMap[idOrigem];
-    int endIdx = idMap[idDestino];
-    int n = numVertices;
-
-    const double INF = numeric_limits<double>::infinity();
-    vector<double> dist(n, INF);
-    vector<int> parent(n, -1);
-
-    // priority Queue (Min-Heap): armazena {distancia, vertice}
-    priority_queue<pair<double, int>, vector<pair<double, int>>, greater<pair<double, int>>> pq;
-
-    dist[startIdx] = 0;
-    pq.push({0, startIdx});
-
-    while (!pq.empty()) {
-        double d = pq.top().first;
-        int u = pq.top().second;
-        pq.pop();
-
-        if (d > dist[u]) continue;
-        if (u == endIdx) break; //
-
-        for (const auto& aresta : adjLista[u]) {
-            int v = aresta.dest;
-            double peso = aresta.peso;
-
-            if (dist[u] + peso < dist[v]) {
-                dist[v] = dist[u] + peso;
-                parent[v] = u;
-                pq.push({dist[v], v});
-            }
-        }
-    }
-
-    // reconstrução do caminho
-    if (parent[endIdx] == -1 && startIdx != endIdx) {
-        return caminho; // não tem caminho
-    }
-
-    int curr = endIdx;
-    while (curr != -1) {
-        caminho.push_front(indiceParaIdMap[curr]);
-        if (curr == startIdx) break;
-        curr = parent[curr];
-    }
-
-    return caminho;
+std::unordered_map<int, long long>& Grafo::getReverseIdMap() {
+    return indiceParaIdMap;
 }

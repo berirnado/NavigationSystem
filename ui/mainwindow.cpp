@@ -12,6 +12,7 @@
         , ui(new Ui::MainWindow)
         , grafo(nullptr)
         , trie(nullptr)
+        , dijkstra(nullptr)
     {
         ui->setupUi(this);
 
@@ -38,6 +39,7 @@
 
     void MainWindow::setGrafo(Grafo *g) { this->grafo = g; }
     void MainWindow::setTrie(Trie *t) { this->trie = t; }
+    void MainWindow::setDijkstra(Dijkstra *d) { this->dijkstra = d;}
 
     void MainWindow::configurarCompleter(QLineEdit* editor, QCompleter*& completer, QStringListModel*& model, const char* slot) {
         completer = new QCompleter(model, this);
@@ -91,7 +93,7 @@
 
     // botão de rota
     void MainWindow::on_btnCalcular_clicked() {
-        if (!grafo || !trie) return;
+        if (!grafo || !trie || !dijkstra) return;
 
         QString txtOrigem = ui->inputOrigem->text();
         QString txtDestino = ui->inputDestino->text();
@@ -106,7 +108,7 @@
         }
 
         // executa Dijkstra
-        list<long long> caminhoIds = grafo->dijkstra(idOrigem, idDestino);
+        list<long long> caminhoIds = dijkstra->executar(idOrigem, idDestino);
 
         if (caminhoIds.empty()) {
             QMessageBox::information(this, "Aviso", "Não há rota entre estes pontos.");

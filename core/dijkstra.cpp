@@ -1,14 +1,14 @@
 #include "dijkstra.h"
 
 
-Dijkstra::Dijkstra()
-{
+Dijkstra::Dijkstra(Grafo& grafo) : grafo(grafo){}
 
-}
 
 // implementação do Dijkstra
-list<long long> Dijkstra::executar(long long idOrigem, long long idDestino, Grafo& grafo) {
+list<long long> Dijkstra::executar(long long idOrigem, long long idDestino) {
     list<long long> caminho;
+    unordered_map<long long, int> idMap = grafo.getIdMap();
+    unordered_map<int, long long> reverseIdMap = grafo.getReverseIdMap();
 
     // verificação de segurança
     if (idMap.find(idOrigem) == idMap.end() || idMap.find(idDestino) == idMap.end()) {
